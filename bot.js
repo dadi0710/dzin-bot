@@ -57,9 +57,29 @@ bot.on('message', async (msg) => {
 
     await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
 
-  } catch (err) {
-    await bot.sendMessage(chatId, '❌ Ошибка. Попробуй ещё раз.');
+const data = await response.json();
+    
+    // Добавь эту проверку
+    if (data.error) {
+      await bot.sendMessage(chatId, `❌ Claude API error: ${data.error.message}`);
+      return;
+    }
+    
+    const raw = data.content[0].text.replace(/```json|```/g, '').trim();
+    
+    // Добавь эту проверку
+    let result;
+    try {
+      result = JSON.parse(raw);
+    } catch (e) {
+      await bot.sendMessage(chatId, `❌ JSON parse error. Claude ответил:\n\n${raw}`);
+      return;
+    }
+
+   } catch (err) {
+    await bot.sendMessage(chatId, `❌ Ошибка: ${err.message}`);
     console.error(err);
+  }
   }
 });
 
