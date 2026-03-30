@@ -21,7 +21,7 @@ const SYSTEM_PROMPT = `Ты — редактор Telegram-канала "Дзын
 bot.on('message', async (msg) => {
   const chatId = msg.chat.id;
   const text = msg.text || msg.caption;
-  
+
   if (!text || text.startsWith('/')) {
     if (text === '/start') {
       bot.sendMessage(chatId, '🔔 Привет! Перешли мне любую новость — я перепишу её в стиле Дзынь.');
@@ -48,26 +48,14 @@ bot.on('message', async (msg) => {
     });
 
     const data = await response.json();
-    const raw = data.content[0].text.replace(/```json|```/g, '').trim();
-    const result = JSON.parse(raw);
 
-    const reply = `*Тип:* \`${result.type}\`\n\n` +
-      `*✈️ Telegram:*\n${result.telegram}\n\n` +
-      `*🎵 TikTok:*\n${result.tiktok}`;
-
-    await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
-
-const data = await response.json();
-    
-    // Добавь эту проверку
     if (data.error) {
       await bot.sendMessage(chatId, `❌ Claude API error: ${data.error.message}`);
       return;
     }
-    
+
     const raw = data.content[0].text.replace(/```json|```/g, '').trim();
-    
-    // Добавь эту проверку
+
     let result;
     try {
       result = JSON.parse(raw);
@@ -76,10 +64,15 @@ const data = await response.json();
       return;
     }
 
-   } catch (err) {
+    const reply = `*Тип:* \`${result.type}\`\n\n` +
+      `*✈️ Telegram:*\n${result.telegram}\n\n` +
+      `*🎵 TikTok:*\n${result.tiktok}`;
+
+    await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
+
+  } catch (err) {
     await bot.sendMessage(chatId, `❌ Ошибка: ${err.message}`);
     console.error(err);
-  }
   }
 });
 
